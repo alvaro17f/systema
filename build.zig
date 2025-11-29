@@ -7,6 +7,27 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const utils_mod = b.createModule(.{
+        .root_source_file = b.path("src/utils/mod.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const modules_mod = b.createModule(.{
+        .root_source_file = b.path("src/modules/mod.zig"),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{
+            .{ .name = "utils", .module = utils_mod },
+        },
+    });
+
+    const zon_mod = b.createModule(.{
+        .root_source_file = b.path("build.zig.zon"),
+        .target = target,
+        .optimize = optimize,
+    });
+
     const exe = b.addExecutable(.{
         .name = "systema",
         .version = version,
@@ -15,8 +36,9 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
             .imports = &.{
-                .{ .name = "utils", .module = b.createModule(.{ .root_source_file = b.path("src/utils/index.zig") }) },
-                .{ .name = "zon", .module = b.createModule(.{ .root_source_file = b.path("build.zig.zon") }) },
+                .{ .name = "modules", .module = modules_mod },
+                .{ .name = "utils", .module = utils_mod },
+                .{ .name = "zon", .module = zon_mod },
             },
         }),
     });

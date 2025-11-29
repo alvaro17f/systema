@@ -3,17 +3,17 @@ const root = @import("root");
 const fmt = @import("utils").fmt;
 const Colors = @import("utils").colors;
 
-const m_username = @import("../modules/username.zig");
-const m_hostname = @import("../modules/hostname.zig");
-const m_system = @import("../modules/system.zig");
-const m_kernel = @import("../modules/kernel.zig");
-const m_cpu = @import("../modules/cpu.zig");
-const m_shell = @import("../modules/shell.zig");
-const m_memory = @import("../modules/memory.zig");
-const m_desktop = @import("../modules/desktop.zig");
-const m_uptime = @import("../modules/uptime.zig");
-const m_storage = @import("../modules/storage.zig");
-const m_colors = @import("../modules/colors.zig");
+const m_username = @import("username.zig");
+const m_hostname = @import("hostname.zig");
+const m_system = @import("system.zig");
+const m_kernel = @import("kernel.zig");
+const m_cpu = @import("cpu.zig");
+const m_shell = @import("shell.zig");
+const m_memory = @import("memory.zig");
+const m_desktop = @import("desktop.zig");
+const m_uptime = @import("uptime.zig");
+const m_storage = @import("storage.zig");
+const m_colors = @import("colors.zig");
 
 pub const Self = @This();
 

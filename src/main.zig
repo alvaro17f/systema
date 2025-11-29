@@ -1,7 +1,7 @@
 const std = @import("std");
 const zon = @import("zon");
-const detectLeaks = @import("utils").allocator.detectLeaks;
-const app = @import("app/init.zig");
+const Allocator = @import("utils").allocator;
+const Modules = @import("modules");
 
 pub const Config = struct {
     name: []const u8,
@@ -14,7 +14,7 @@ pub const Config = struct {
 };
 
 pub fn main() !void {
-    defer if (detectLeaks()) {
+    defer if (Allocator.detectLeaks()) {
         std.posix.exit(1);
     };
 
@@ -23,5 +23,12 @@ pub fn main() !void {
         .version = zon.version,
     };
 
-    try app.init(&config);
+    try init(&config);
+}
+
+pub fn init(config: *const Config) !void {
+    var modules = try Modules.init(Allocator.allocator);
+    defer modules.deinit();
+
+    try Modules.print(config, modules);
 }
