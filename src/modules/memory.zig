@@ -50,6 +50,6 @@ pub fn getMemoryInfo(allocator: std.mem.Allocator) ![]const u8 {
     return std.fmt.allocPrint(
         allocator,
         "{d:.2} GiB / {d:.2} GiB ({s}{d:.0}%{s})",
-        .{ meminfo.used, meminfo.total, Colors.Cyan, meminfo.used_percent, Colors.Reset },
+        .{ meminfo.used, meminfo.total, Colors.CYAN, meminfo.used_percent, Colors.RESET },
     ) catch |err| return err;
 }

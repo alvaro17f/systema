@@ -34,8 +34,8 @@ pub fn getStorage(allocator: std.mem.Allocator, disk_path: []const u8) ![]const 
     return std.fmt.allocPrint(allocator, "{d:.2} GiB / {d:.2} GiB ({s}{d}%{s})", .{
         disk_info.disk_usage,
         disk_info.disk_size,
-        Colors.Cyan,
+        Colors.CYAN,
         disk_info.disk_usage_percentage,
-        Colors.Reset,
+        Colors.RESET,
     });
 }

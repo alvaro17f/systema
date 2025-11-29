@@ -107,12 +107,12 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         \\ {s} version   {s}
         \\
     , .{
-        Colors.Yellow,
+        Colors.YELLOW,
         modules.username,
-        Colors.Red,
-        Colors.Green,
+        Colors.RED,
+        Colors.GREEN,
         modules.hostname,
-        Colors.Reset,
+        Colors.RESET,
         modules.system,
         modules.kernel,
         modules.desktop,
