@@ -6,20 +6,6 @@ pub const version = std.SemanticVersion.parse(zon.version) catch @panic("Invalid
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const mod = b.addModule("systema", .{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-    });
-
-    const allocator_mod = b.createModule(.{
-        .root_source_file = b.path("src/utils/allocator.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const zon_mod = b.createModule(.{
-        .root_source_file = b.path("build.zig.zon"),
-    });
 
     const exe = b.addExecutable(.{
         .name = "systema",
@@ -29,9 +15,8 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
             .imports = &.{
-                .{ .name = "systema", .module = mod },
-                .{ .name = "allocator", .module = allocator_mod },
-                .{ .name = "zon", .module = zon_mod },
+                .{ .name = "utils", .module = b.createModule(.{ .root_source_file = b.path("src/utils/index.zig") }) },
+                .{ .name = "zon", .module = b.createModule(.{ .root_source_file = b.path("build.zig.zon") }) },
             },
         }),
     });

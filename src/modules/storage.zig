@@ -1,6 +1,6 @@
 const std = @import("std");
 const c_statvfs = @cImport(@cInclude("sys/statvfs.h"));
-const colors = @import("../utils/colors.zig");
+const Colors = @import("utils").colors;
 
 pub const DiskInfo = struct {
     disk_path: []const u8,
@@ -34,8 +34,8 @@ pub fn getStorage(allocator: std.mem.Allocator, disk_path: []const u8) ![]const 
     return std.fmt.allocPrint(allocator, "{d:.2} GiB / {d:.2} GiB ({s}{d}%{s})", .{
         disk_info.disk_usage,
         disk_info.disk_size,
-        colors.Cyan,
+        Colors.Cyan,
         disk_info.disk_usage_percentage,
-        colors.Reset,
+        Colors.Reset,
     });
 }

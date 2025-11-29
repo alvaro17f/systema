@@ -1,7 +1,6 @@
 const std = @import("std");
-const systema = @import("systema");
 const zon = @import("zon");
-const detectLeaks = @import("allocator").detectLeaks;
+const detectLeaks = @import("utils").allocator.detectLeaks;
 const app = @import("app/init.zig");
 
 pub const Config = struct {

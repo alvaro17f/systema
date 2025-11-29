@@ -1,5 +1,5 @@
 const std = @import("std");
-const colors = @import("../utils/colors.zig");
+const Colors = @import("utils").colors;
 
 const Memory = struct {
     total: f64,
@@ -50,6 +50,6 @@ pub fn getMemoryInfo(allocator: std.mem.Allocator) ![]const u8 {
     return std.fmt.allocPrint(
         allocator,
         "{d:.2} GiB / {d:.2} GiB ({s}{d:.0}%{s})",
-        .{ meminfo.used, meminfo.total, colors.Cyan, meminfo.used_percent, colors.Reset },
+        .{ meminfo.used, meminfo.total, Colors.Cyan, meminfo.used_percent, Colors.Reset },
     ) catch |err| return err;
 }

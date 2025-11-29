@@ -1,5 +1,5 @@
 const std = @import("std");
-const lineFinder = @import("../utils/line_finder.zig").lineFinder;
+const lineFinder = @import("utils").lineFinder.lineFinder;
 
 pub fn getSystemInfo(allocator: std.mem.Allocator) []const u8 {
     const system_raw = lineFinder(allocator, "/etc/os-release", "PRETTY_NAME", '=') catch "Unkown";

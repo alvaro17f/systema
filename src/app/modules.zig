@@ -1,7 +1,7 @@
 const std = @import("std");
 const root = @import("root");
-const systema = @import("systema");
-const style = @import("../utils/colors.zig");
+const fmt = @import("utils").fmt;
+const Colors = @import("utils").colors;
 
 const m_username = @import("../modules/username.zig");
 const m_hostname = @import("../modules/hostname.zig");
@@ -92,7 +92,7 @@ pub fn deinit(self: *Self) void {
 }
 
 pub fn print(config: *const root.Config, modules: Self) !void {
-    try systema.print(
+    try fmt.print(
         \\
         \\ {s}{s}{s}@{s}{s}{s} ~
         \\   System         {s}
@@ -107,12 +107,12 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         \\ {s} version   {s}
         \\
     , .{
-        style.Yellow,
+        Colors.Yellow,
         modules.username,
-        style.Red,
-        style.Green,
+        Colors.Red,
+        Colors.Green,
         modules.hostname,
-        style.Reset,
+        Colors.Reset,
         modules.system,
         modules.kernel,
         modules.desktop,
