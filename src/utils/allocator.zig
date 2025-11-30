@@ -24,8 +24,8 @@ pub const FixedBuffer = struct {
     buffer: []u8,
     fba: std.heap.FixedBufferAllocator,
 
-    pub fn init(buffer: []u8) FixedBuffer {
-        return .{
+    pub fn init(self: *FixedBuffer, buffer: []u8) void {
+        self.* = .{
             .buffer = buffer,
             .fba = std.heap.FixedBufferAllocator.init(buffer),
         };
@@ -39,8 +39,8 @@ pub const FixedBuffer = struct {
 pub const Arena = struct {
     arena: std.heap.ArenaAllocator,
 
-    pub fn init() Arena {
-        return .{ .arena = std.heap.ArenaAllocator.init(Self.gpa) };
+    pub fn init(self: *Arena) void {
+        self.* = .{ .arena = std.heap.ArenaAllocator.init(Self.gpa) };
     }
 
     pub fn deinit(self: *Arena) void {

@@ -42,11 +42,12 @@ pub fn main() !void {
         .version = zon.version,
     };
 
-    var arena = Allocator.Arena.init();
+    var arena: Allocator.Arena = undefined;
+    arena.init();
     defer arena.deinit();
-    const allocator = arena.allocator();
 
-    const modules = try Modules.init(allocator);
+    var modules: Modules = undefined;
+    try modules.init(arena.allocator());
 
     try Modules.print(&config, modules);
 }

@@ -20,8 +20,8 @@ uptime: []const u8,
 storage: []const u8,
 colors: []const u8,
 
-pub fn init(allocator: std.mem.Allocator) !Self {
-    return .{
+pub fn init(self: *Self, allocator: std.mem.Allocator) !void {
+    self.* = .{
         .allocator = allocator,
         .username = @import("username.zig").getUsername(),
         .hostname = @import("hostname.zig").getHostname(&hostname_buf),
