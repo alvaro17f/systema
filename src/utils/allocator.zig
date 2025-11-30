@@ -5,7 +5,7 @@ const Self = @This();
 
 var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
 
-pub const allocator =
+pub const gpa =
     if (builtin.mode == .Debug)
         debug_allocator.allocator()
     else if (builtin.link_libc)
@@ -40,7 +40,7 @@ pub const Arena = struct {
     arena: std.heap.ArenaAllocator,
 
     pub fn init() Arena {
-        return .{ .arena = std.heap.ArenaAllocator.init(Self.allocator) };
+        return .{ .arena = std.heap.ArenaAllocator.init(Self.gpa) };
     }
 
     pub fn deinit(self: *Arena) void {

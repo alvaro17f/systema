@@ -42,7 +42,7 @@ pub fn main() !void {
         .version = zon.version,
     };
 
-    var modules = try Modules.init(Allocator.allocator);
+    var modules = try Modules.init(Allocator.gpa);
     defer modules.deinit();
 
     try Modules.print(&config, modules);
