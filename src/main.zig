@@ -9,7 +9,7 @@ pub const Logo = struct {
     enabled: bool = true,
     embed: []const u8 = @embedFile("assets/logo"),
     path: ?[]const u8 = null,
-    // color: @TypeOf(Colors) = Colors.BLUE,
+    color: []const u8 = Colors.BLUE,
     gap: u8 = 3,
 };
 

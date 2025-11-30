@@ -139,7 +139,7 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         const max_lines = @max(logo.len, info_lines.items.len);
         for (0..max_lines) |i| {
             if (i < logo.len) {
-                try fmt.print("{s}", .{logo[i]});
+                try fmt.print("{s}{s}{s}", .{config.logo.color, logo[i], Colors.RESET});
                 const width = std.unicode.utf8CountCodepoints(logo[i]) catch logo[i].len;
                 const padding = logo_width - width + gap;
                 for (0..padding) |_| try fmt.print(" ", .{});
