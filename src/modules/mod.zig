@@ -21,41 +21,19 @@ storage: []const u8,
 colors: []const u8,
 
 pub fn init(allocator: std.mem.Allocator) !Self {
-    const username = @import("username.zig").getUsername();
-
-    const hostname = @import("hostname.zig").getHostname(&hostname_buf);
-
-    const system = @import("system.zig").getSystemInfo(allocator);
-
-    const kernel = @import("kernel.zig").getKernelInfo(allocator);
-
-    const cpu = @import("cpu.zig").getCpuInfo(allocator);
-
-    const shell = try @import("shell.zig").getShell(allocator);
-
-    const memory = try @import("memory.zig").getMemoryInfo(allocator);
-
-    const desktop = try @import("desktop.zig").getDesktop(allocator);
-
-    const uptime = try @import("uptime.zig").getUptimeInfo(allocator);
-
-    const storage = try @import("storage.zig").getStorage(allocator, "/");
-
-    const colors = try @import("colors.zig").getColors(allocator);
-
     return .{
         .allocator = allocator,
-        .username = username,
-        .hostname = hostname,
-        .system = system,
-        .kernel = kernel,
-        .cpu = cpu,
-        .shell = shell,
-        .memory = memory,
-        .desktop = desktop,
-        .uptime = uptime,
-        .storage = storage,
-        .colors = colors,
+        .username = @import("username.zig").getUsername(),
+        .hostname = @import("hostname.zig").getHostname(&hostname_buf),
+        .system = @import("system.zig").getSystemInfo(allocator),
+        .kernel = @import("kernel.zig").getKernelInfo(allocator),
+        .cpu = @import("cpu.zig").getCpuInfo(allocator),
+        .shell = try @import("shell.zig").getShell(allocator),
+        .memory = try @import("memory.zig").getMemoryInfo(allocator),
+        .desktop = try @import("desktop.zig").getDesktop(allocator),
+        .uptime = try @import("uptime.zig").getUptimeInfo(allocator),
+        .storage = try @import("storage.zig").getStorage(allocator, "/"),
+        .colors = try @import("colors.zig").getColors(allocator),
     };
 }
 
