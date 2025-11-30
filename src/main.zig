@@ -1,5 +1,6 @@
 const std = @import("std");
 const Allocator = @import("utils").allocator;
+const fmt = @import("utils").fmt;
 const Colors = @import("utils").colors;
 const Modules = @import("modules");
 const log = std.log.scoped(.main);
@@ -50,4 +51,9 @@ pub fn main() !void {
     try modules.init(arena.allocator());
 
     try Modules.print(&config, modules);
+    try cli(config);
+}
+
+pub fn cli(config: Config) !void {
+    try fmt.print("{s} version: {s}\n", .{ config.name, config.version });
 }

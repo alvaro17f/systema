@@ -58,7 +58,6 @@ pub fn print(config: *const root.Config, modules: Self) !void {
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Memory{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.memory }));
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}󱥎  {s}Storage (/){s}    {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.storage }));
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Colors{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.colors }));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s} version   {s}", .{ config.name, config.version }));
 
     try fmt.print("\n", .{});
 
