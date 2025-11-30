@@ -9,3 +9,13 @@ pub fn print(comptime msg: []const u8, args: anytype) !void {
 
     try stdout.flush(); // Don't forget to flush!
 }
+
+pub fn stderr(comptime msg: []const u8, args: anytype) !void {
+    var stderr_buffer: [1024]u8 = undefined;
+    var stderr_writer = std.fs.File.stdout().writer(&stderr_buffer);
+    const stderr_interface = &stderr_writer.interface;
+
+    try stderr_interface.print(msg, args);
+
+    try stderr_interface.flush(); // Don't forget to flush!
+}

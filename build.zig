@@ -13,6 +13,15 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const cli_mod = b.createModule(.{
+        .root_source_file = b.path("src/cli/mod.zig"),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{
+            .{ .name = "utils", .module = utils_mod },
+        },
+    });
+
     const modules_mod = b.createModule(.{
         .root_source_file = b.path("src/modules/mod.zig"),
         .target = target,
@@ -36,6 +45,7 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
             .imports = &.{
+                .{ .name = "cli", .module = cli_mod },
                 .{ .name = "modules", .module = modules_mod },
                 .{ .name = "utils", .module = utils_mod },
                 .{ .name = "zon", .module = zon_mod },
