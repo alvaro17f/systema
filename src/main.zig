@@ -5,13 +5,17 @@ const Modules = @import("modules");
 const log = std.log.scoped(.main);
 const zon = @import("zon");
 
+pub const Logo = struct {
+    enabled: bool = true,
+    path: []const u8 = "",
+    // color: @TypeOf(Colors) = Colors.BLUE,
+    gap: u8 = 3,
+};
+
 pub const Config = struct {
     name: []const u8,
     version: []const u8,
-    logo: bool = true,
-    // logo_color: @TypeOf(Colors),
-    logo_path: []const u8 = "",
-    logo_gap: u8 = 3,
+    logo: Logo = Logo{},
     info_offset: u8 = 0,
 };
 

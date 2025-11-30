@@ -110,12 +110,12 @@ pub fn print(config: *const root.Config, modules: Self) !void {
 
     try fmt.print("\n", .{});
 
-    if (config.logo) {
+    if (config.logo.enabled) {
         var logo_width: usize = 0;
         for (logo) |line| {
             if (line.len > logo_width) logo_width = line.len;
         }
-        const gap = 4;
+        const gap = config.logo.gap;
 
         const max_lines = @max(logo.len, info_lines.items.len);
         for (0..max_lines) |i| {
