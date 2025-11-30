@@ -4,7 +4,14 @@ const builtin = @import("builtin");
 const Self = @This();
 
 var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
-pub const allocator = if (builtin.mode == .Debug) debug_allocator.allocator() else std.heap.c_allocator;
+
+pub const allocator =
+    if (builtin.mode == .Debug)
+        debug_allocator.allocator()
+    else if (builtin.link_libc)
+        std.heap.c_allocator
+    else
+        std.heap.page_allocator;
 
 pub fn detectLeaks() bool {
     if (builtin.mode == .Debug) {
