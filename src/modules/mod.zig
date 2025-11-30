@@ -3,18 +3,6 @@ const root = @import("root");
 const fmt = @import("utils").fmt;
 const Colors = @import("utils").colors;
 
-const m_username = @import("username.zig");
-const m_hostname = @import("hostname.zig");
-const m_system = @import("system.zig");
-const m_kernel = @import("kernel.zig");
-const m_cpu = @import("cpu.zig");
-const m_shell = @import("shell.zig");
-const m_memory = @import("memory.zig");
-const m_desktop = @import("desktop.zig");
-const m_uptime = @import("uptime.zig");
-const m_storage = @import("storage.zig");
-const m_colors = @import("colors.zig");
-
 pub const Self = @This();
 
 var hostname_buf: [std.posix.HOST_NAME_MAX]u8 = undefined;
@@ -33,34 +21,35 @@ storage: []const u8,
 colors: []const u8,
 
 pub fn init(allocator: std.mem.Allocator) !Self {
-    const username = m_username.getUsername();
-    const hostname = m_hostname.getHostname(&hostname_buf);
+    const username = @import("username.zig").getUsername();
 
-    const system = m_system.getSystemInfo(allocator);
+    const hostname = @import("hostname.zig").getHostname(&hostname_buf);
+
+    const system = @import("system.zig").getSystemInfo(allocator);
     errdefer allocator.free(system);
 
-    const kernel = m_kernel.getKernelInfo(allocator);
+    const kernel = @import("kernel.zig").getKernelInfo(allocator);
     errdefer allocator.free(kernel);
 
-    const cpu = m_cpu.getCpuInfo(allocator);
+    const cpu = @import("cpu.zig").getCpuInfo(allocator);
     errdefer allocator.free(cpu);
 
-    const shell = try m_shell.getShell(allocator);
+    const shell = try @import("shell.zig").getShell(allocator);
     errdefer allocator.free(shell);
 
-    const memory = try m_memory.getMemoryInfo(allocator);
+    const memory = try @import("memory.zig").getMemoryInfo(allocator);
     errdefer allocator.free(memory);
 
-    const desktop = try m_desktop.getDesktop(allocator);
+    const desktop = try @import("desktop.zig").getDesktop(allocator);
     errdefer allocator.free(desktop);
 
-    const uptime = try m_uptime.getUptimeInfo(allocator);
+    const uptime = try @import("uptime.zig").getUptimeInfo(allocator);
     errdefer allocator.free(uptime);
 
-    const storage = try m_storage.getStorage(allocator, "/");
+    const storage = try @import("storage.zig").getStorage(allocator, "/");
     errdefer allocator.free(storage);
 
-    const colors = try m_colors.getColors(allocator);
+    const colors = try @import("colors.zig").getColors(allocator);
     errdefer allocator.free(colors);
 
     return .{
@@ -92,37 +81,63 @@ pub fn deinit(self: *Self) void {
 }
 
 pub fn print(config: *const root.Config, modules: Self) !void {
-    try fmt.print(
-        \\
-        \\ {s}{s}{s}@{s}{s}{s} ~
-        \\   System         {s}
-        \\   Kernel         {s}
-        \\   Desktop        {s}
-        \\   CPU            {s}
-        \\   Shell          {s}
-        \\   Uptime         {s}
-        \\   Memory         {s}
-        \\ 󱥎  Storage (/)    {s}
-        \\   Colors         {s}
-        \\ {s} version   {s}
-        \\
-    , .{
-        Colors.YELLOW,
-        modules.username,
-        Colors.RED,
-        Colors.GREEN,
-        modules.hostname,
-        Colors.RESET,
-        modules.system,
-        modules.kernel,
-        modules.desktop,
-        modules.cpu,
-        modules.shell,
-        modules.uptime,
-        modules.memory,
-        modules.storage,
-        modules.colors,
-        config.name,
-        config.version,
-    });
+    const logo = [_][]const u8{
+        "      _     ",
+        "   __|_|__  ",
+        "  |_  _  _| ",
+        "    | | |   ",
+        "    |_|_|   ",
+    };
+
+    var info_lines: std.ArrayList([]const u8) = .empty;
+    defer info_lines.deinit(modules.allocator);
+    defer for (info_lines.items) |line| modules.allocator.free(line);
+
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}{s}{s}@{s}{s}{s} ~", .{
+        Colors.YELLOW, modules.username, Colors.RED, Colors.GREEN, modules.hostname, Colors.RESET,
+    }));
+
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  System         {s}", .{modules.system}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Kernel         {s}", .{modules.kernel}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Desktop        {s}", .{modules.desktop}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  CPU            {s}", .{modules.cpu}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Shell          {s}", .{modules.shell}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Uptime         {s}", .{modules.uptime}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Memory         {s}", .{modules.memory}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "󱥎  Storage (/)    {s}", .{modules.storage}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Colors         {s}", .{modules.colors}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s} version   {s}", .{ config.name, config.version }));
+
+    try fmt.print("\n", .{});
+
+    if (config.logo) {
+        var logo_width: usize = 0;
+        for (logo) |line| {
+            if (line.len > logo_width) logo_width = line.len;
+        }
+        const gap = 4;
+
+        const max_lines = @max(logo.len, info_lines.items.len);
+        for (0..max_lines) |i| {
+            if (i < logo.len) {
+                try fmt.print("{s}", .{logo[i]});
+                const padding = logo_width - logo[i].len + gap;
+                for (0..padding) |_| try fmt.print(" ", .{});
+            } else {
+                const padding = logo_width + gap;
+                for (0..padding) |_| try fmt.print(" ", .{});
+            }
+
+            if (i < info_lines.items.len) {
+                try fmt.print("{s}", .{info_lines.items[i]});
+            }
+            try fmt.print("\n", .{});
+        }
+    } else {
+        for (info_lines.items) |line| {
+            try fmt.print("{s}\n", .{line});
+        }
+    }
+
+    try fmt.print("\n", .{});
 }
