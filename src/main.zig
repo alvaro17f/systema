@@ -13,11 +13,21 @@ pub const Logo = struct {
     gap: u8 = 3,
 };
 
+pub const Icons = struct {
+    color: []const u8 = Colors.BLUE,
+};
+
+pub const Info = struct {
+    color: []const u8 = Colors.BLUE,
+    offset: u8 = 0,
+};
+
 pub const Config = struct {
     name: []const u8,
     version: []const u8,
     logo: Logo = Logo{},
-    info_offset: u8 = 0,
+    icons: Icons = Icons{},
+    info: Info = Info{},
 };
 
 pub fn main() !void {

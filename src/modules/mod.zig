@@ -89,15 +89,15 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         Colors.YELLOW, modules.username, Colors.RED, Colors.GREEN, modules.hostname, Colors.RESET,
     }));
 
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  System         {s}", .{modules.system}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Kernel         {s}", .{modules.kernel}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Desktop        {s}", .{modules.desktop}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  CPU            {s}", .{modules.cpu}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Shell          {s}", .{modules.shell}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Uptime         {s}", .{modules.uptime}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Memory         {s}", .{modules.memory}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "󱥎  Storage (/)    {s}", .{modules.storage}));
-    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "  Colors         {s}", .{modules.colors}));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}System{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.system }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Kernel{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.kernel }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Desktop{s}        {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.desktop }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}CPU{s}            {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.cpu }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Shell{s}          {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.shell }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Uptime{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.uptime }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Memory{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.memory }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}󱥎  {s}Storage (/){s}    {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.storage }));
+    try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Colors{s}         {s}", .{ config.icons.color, config.info.color, Colors.RESET, modules.colors }));
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s} version   {s}", .{ config.name, config.version }));
 
     try fmt.print("\n", .{});
@@ -139,7 +139,7 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         const max_lines = @max(logo.len, info_lines.items.len);
         for (0..max_lines) |i| {
             if (i < logo.len) {
-                try fmt.print("{s}{s}{s}", .{config.logo.color, logo[i], Colors.RESET});
+                try fmt.print("{s}{s}{s}", .{ config.logo.color, logo[i], Colors.RESET });
                 const width = std.unicode.utf8CountCodepoints(logo[i]) catch logo[i].len;
                 const padding = logo_width - width + gap;
                 for (0..padding) |_| try fmt.print(" ", .{});
