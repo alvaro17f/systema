@@ -1,7 +1,9 @@
 const std = @import("std");
-const zon = @import("zon");
 const Allocator = @import("utils").allocator;
+const Colors = @import("utils").colors;
 const Modules = @import("modules");
+const log = std.log.scoped(.main);
+const zon = @import("zon");
 
 pub const Config = struct {
     name: []const u8,
@@ -14,6 +16,8 @@ pub const Config = struct {
 };
 
 pub fn main() !void {
+    log.debug("{s}***** DEBUG BUILD *****{s}", .{ Colors.RED, Colors.RESET });
+
     defer if (Allocator.detectLeaks()) {
         std.posix.exit(1);
     };
