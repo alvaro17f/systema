@@ -26,31 +26,22 @@ pub fn init(allocator: std.mem.Allocator) !Self {
     const hostname = @import("hostname.zig").getHostname(&hostname_buf);
 
     const system = @import("system.zig").getSystemInfo(allocator);
-    errdefer allocator.free(system);
 
     const kernel = @import("kernel.zig").getKernelInfo(allocator);
-    errdefer allocator.free(kernel);
 
     const cpu = @import("cpu.zig").getCpuInfo(allocator);
-    errdefer allocator.free(cpu);
 
     const shell = try @import("shell.zig").getShell(allocator);
-    errdefer allocator.free(shell);
 
     const memory = try @import("memory.zig").getMemoryInfo(allocator);
-    errdefer allocator.free(memory);
 
     const desktop = try @import("desktop.zig").getDesktop(allocator);
-    errdefer allocator.free(desktop);
 
     const uptime = try @import("uptime.zig").getUptimeInfo(allocator);
-    errdefer allocator.free(uptime);
 
     const storage = try @import("storage.zig").getStorage(allocator, "/");
-    errdefer allocator.free(storage);
 
     const colors = try @import("colors.zig").getColors(allocator);
-    errdefer allocator.free(colors);
 
     return .{
         .allocator = allocator,
@@ -69,21 +60,12 @@ pub fn init(allocator: std.mem.Allocator) !Self {
 }
 
 pub fn deinit(self: *Self) void {
-    self.allocator.free(self.system);
-    self.allocator.free(self.kernel);
-    self.allocator.free(self.cpu);
-    self.allocator.free(self.shell);
-    self.allocator.free(self.memory);
-    self.allocator.free(self.desktop);
-    self.allocator.free(self.uptime);
-    self.allocator.free(self.storage);
-    self.allocator.free(self.colors);
+    _ = self;
 }
 
 pub fn print(config: *const root.Config, modules: Self) !void {
     var info_lines: std.ArrayList([]const u8) = .empty;
     defer info_lines.deinit(modules.allocator);
-    defer for (info_lines.items) |line| modules.allocator.free(line);
 
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}{s}{s}@{s}{s}{s} ~", .{
         Colors.YELLOW, modules.username, Colors.RED, Colors.GREEN, modules.hostname, Colors.RESET,
@@ -107,7 +89,6 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         defer logo_list.deinit(modules.allocator);
 
         var file_content: ?[]u8 = null;
-        defer if (file_content) |c| modules.allocator.free(c);
 
         var logo_content = config.logo.embed;
         if (config.logo.path) |p| {

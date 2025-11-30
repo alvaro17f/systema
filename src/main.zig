@@ -42,8 +42,11 @@ pub fn main() !void {
         .version = zon.version,
     };
 
-    var modules = try Modules.init(Allocator.gpa);
-    defer modules.deinit();
+    var arena = Allocator.Arena.init();
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const modules = try Modules.init(allocator);
 
     try Modules.print(&config, modules);
 }
