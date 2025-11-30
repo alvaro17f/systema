@@ -31,12 +31,8 @@ pub fn main() !void {
         .version = zon.version,
     };
 
-    try init(&config);
-}
-
-pub fn init(config: *const Config) !void {
     var modules = try Modules.init(Allocator.allocator);
     defer modules.deinit();
 
-    try Modules.print(config, modules);
+    try Modules.print(&config, modules);
 }
