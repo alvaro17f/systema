@@ -81,14 +81,6 @@ pub fn deinit(self: *Self) void {
 }
 
 pub fn print(config: *const root.Config, modules: Self) !void {
-    const logo = [_][]const u8{
-        "      _     ",
-        "   __|_|__  ",
-        "  |_  _  _| ",
-        "    | | |   ",
-        "    |_|_|   ",
-    };
-
     var info_lines: std.ArrayList([]const u8) = .empty;
     defer info_lines.deinit(modules.allocator);
     defer for (info_lines.items) |line| modules.allocator.free(line);
@@ -111,9 +103,36 @@ pub fn print(config: *const root.Config, modules: Self) !void {
     try fmt.print("\n", .{});
 
     if (config.logo.enabled) {
+        var logo_list: std.ArrayList([]const u8) = .empty;
+        defer logo_list.deinit(modules.allocator);
+
+        var file_content: ?[]u8 = null;
+        defer if (file_content) |c| modules.allocator.free(c);
+
+        var logo_content = config.logo.embed;
+        if (config.logo.path) |p| {
+            if (std.fs.cwd().openFile(p, .{})) |file| {
+                defer file.close();
+                if (file.readToEndAlloc(modules.allocator, std.math.maxInt(usize))) |content| {
+                    file_content = content;
+                    logo_content = content;
+                } else |_| {}
+            } else |_| {}
+        }
+
+        var line_iter = std.mem.splitScalar(u8, logo_content, '\n');
+        while (line_iter.next()) |line| {
+            try logo_list.append(modules.allocator, line);
+        }
+        if (logo_list.items.len > 0 and logo_list.items[logo_list.items.len - 1].len == 0) {
+            _ = logo_list.pop();
+        }
+
+        const logo = logo_list.items;
         var logo_width: usize = 0;
         for (logo) |line| {
-            if (line.len > logo_width) logo_width = line.len;
+            const width = std.unicode.utf8CountCodepoints(line) catch line.len;
+            if (width > logo_width) logo_width = width;
         }
         const gap = config.logo.gap;
 
@@ -121,7 +140,8 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         for (0..max_lines) |i| {
             if (i < logo.len) {
                 try fmt.print("{s}", .{logo[i]});
-                const padding = logo_width - logo[i].len + gap;
+                const width = std.unicode.utf8CountCodepoints(logo[i]) catch logo[i].len;
+                const padding = logo_width - width + gap;
                 for (0..padding) |_| try fmt.print(" ", .{});
             } else {
                 const padding = logo_width + gap;

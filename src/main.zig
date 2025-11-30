@@ -7,7 +7,8 @@ const zon = @import("zon");
 
 pub const Logo = struct {
     enabled: bool = true,
-    path: []const u8 = "",
+    embed: []const u8 = @embedFile("assets/logo"),
+    path: ?[]const u8 = null,
     // color: @TypeOf(Colors) = Colors.BLUE,
     gap: u8 = 3,
 };
