@@ -69,7 +69,21 @@ pub fn print(config: *const root.Config, modules: Self) !void {
 
         var logo_content = config.logo.embed;
         if (config.logo.path) |p| {
-            if (std.fs.cwd().openFile(p, .{})) |file| {
+            var path = p;
+            var path_alloc: ?[]u8 = null;
+            defer if (path_alloc) |ptr| modules.allocator.free(ptr);
+
+            if (std.mem.startsWith(u8, p, "~/")) {
+                if (std.process.getEnvVarOwned(modules.allocator, "HOME")) |home| {
+                    defer modules.allocator.free(home);
+                    if (std.fs.path.join(modules.allocator, &[_][]const u8{ home, p[2..] })) |joined| {
+                        path_alloc = joined;
+                        path = joined;
+                    } else |_| {}
+                } else |_| {}
+            }
+
+            if (std.fs.cwd().openFile(path, .{})) |file| {
                 defer file.close();
                 if (file.readToEndAlloc(modules.allocator, std.math.maxInt(usize))) |content| {
                     file_content = content;
