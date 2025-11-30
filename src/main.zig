@@ -50,10 +50,13 @@ pub fn main() !void {
     var modules: Modules = undefined;
     try modules.init(arena.allocator());
 
-    try Modules.print(&config, modules);
     try cli(config);
+    try Modules.print(&config, modules);
+
+    log.debug("{s}***** {s}{s}{s}: {s}{s}{s} *****{s}", .{ Colors.RED, Colors.YELLOW, config.name, Colors.RESET, Colors.GREEN, config.version, Colors.RED, Colors.RESET });
 }
 
 pub fn cli(config: Config) !void {
-    try fmt.print("{s} version: {s}\n", .{ config.name, config.version });
+    _ = config;
+    // try fmt.print("{s} version: {s}\n", .{ config.name, config.version });
 }
