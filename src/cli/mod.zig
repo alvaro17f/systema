@@ -1,6 +1,7 @@
 const std = @import("std");
 const Config = @import("root").Config;
 const fmt = @import("utils").fmt;
+const Colors = @import("utils").colors;
 
 const Self = @This();
 
@@ -45,13 +46,13 @@ pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
                 } else if (eql(opt, "logo-path")) {
                     config.logo.path = val;
                 } else if (eql(opt, "logo-color")) {
-                    config.logo.color = val;
+                    config.logo.color = Colors.hex(self.allocator, val) catch config.logo.color;
                 } else if (eql(opt, "logo-gap")) {
                     config.logo.gap = std.fmt.parseInt(u8, val, 10) catch config.logo.gap;
                 } else if (eql(opt, "icons-color")) {
-                    config.icons.color = val;
+                    config.icons.color = Colors.hex(self.allocator, val) catch config.icons.color;
                 } else if (eql(opt, "labels-color")) {
-                    config.labels.color = val;
+                    config.labels.color = Colors.hex(self.allocator, val) catch config.labels.color;
                 } else if (eql(opt, "info-offset")) {
                     config.info.offset = std.fmt.parseInt(u8, val, 10) catch config.info.offset;
                 } else {
