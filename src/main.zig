@@ -23,17 +23,12 @@ pub const Labels = struct {
     color: []const u8 = Colors.BLUE,
 };
 
-pub const Info = struct {
-    offset: u8 = 0,
-};
-
 pub const Config = struct {
     name: []const u8,
     version: []const u8,
     logo: Logo = Logo{},
     icons: Icons = Icons{},
     labels: Labels = Labels{},
-    info: Info = Info{},
 };
 
 pub fn main() !void {

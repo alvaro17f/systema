@@ -53,8 +53,6 @@ pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
                     config.icons.color = Colors.hex(self.allocator, val) catch config.icons.color;
                 } else if (eql(opt, "labels-color")) {
                     config.labels.color = Colors.hex(self.allocator, val) catch config.labels.color;
-                } else if (eql(opt, "info-offset")) {
-                    config.info.offset = std.fmt.parseInt(u8, val, 10) catch config.info.offset;
                 } else {
                     try fmt.stderr("Invalid opt: '{s}'\n", .{opt});
                     std.process.exit(1);

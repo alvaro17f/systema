@@ -12,14 +12,10 @@ pub fn getHelp(self: *Cli) !void {
         \\  -v, --version                        Print the version string
         \\
         \\ --logo-path=<path>                    Path to the logo file
-        \\ --logo-color=<color>                  Color of the logo
         \\ --logo-gap=<number>                   Gap between the logo and the info
-        \\
+        \\ --logo-color=<color>                  Color of the logo
         \\ --icons-color=<color>                 Color of the icons
-        \\
         \\ --labels-color=<color>                Color of the labels
-        \\
-        \\ --info-offset=<number>                Offset of the info section from the top
         \\
     , .{self.config.name});
 
