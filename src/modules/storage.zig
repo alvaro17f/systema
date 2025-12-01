@@ -1,5 +1,4 @@
 const std = @import("std");
-const c_statvfs = @cImport(@cInclude("sys/statvfs.h"));
 const Colors = @import("utils").colors;
 
 pub const DiskInfo = struct {
@@ -11,9 +10,30 @@ pub const DiskInfo = struct {
 
 const GB = 1024 * 1024 * 1024;
 
+const struct_statvfs = extern struct {
+    f_bsize: c_ulong,
+    f_frsize: c_ulong,
+    f_blocks: c_ulong,
+    f_bfree: c_ulong,
+    f_bavail: c_ulong,
+    f_files: c_ulong,
+    f_ffree: c_ulong,
+    f_favail: c_ulong,
+    f_fsid: c_ulong,
+    f_flag: c_ulong,
+    f_namemax: c_ulong,
+    __reserved: [6]c_int,
+};
+
+extern "c" fn statvfs(path: [*:0]const u8, buf: *struct_statvfs) c_int;
+
 pub fn getStorage(allocator: std.mem.Allocator, disk_path: []const u8) ![]const u8 {
-    var stat: c_statvfs.struct_statvfs = undefined;
-    if (c_statvfs.statvfs(disk_path.ptr, &stat) != 0) {
+    var stat: struct_statvfs = undefined;
+
+    const path_z = try allocator.dupeZ(u8, disk_path);
+    defer allocator.free(path_z);
+
+    if (statvfs(path_z, &stat) != 0) {
         return error.StatvfsFailed;
     }
 
