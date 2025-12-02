@@ -12,7 +12,7 @@ pub fn getVersion(self: *Cli) !void {
         \\
     , .{ Colors.YELLOW, name, Colors.RESET, Colors.GREEN, self.config.version, Colors.RESET });
 
-    try fmt.print("{s}\n", .{help});
+    try fmt.stdout("{s}\n", .{help});
 
     std.process.exit(0);
 }

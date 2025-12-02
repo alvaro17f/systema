@@ -59,7 +59,7 @@ pub fn print(config: *const root.Config, modules: Self) !void {
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}󱥎  {s}Storage (/){s}    {s}", .{ config.icons.color, config.labels.color, Colors.RESET, modules.storage }));
     try info_lines.append(modules.allocator, try std.fmt.allocPrint(modules.allocator, "{s}  {s}Colors{s}         {s}", .{ config.icons.color, config.labels.color, Colors.RESET, modules.colors }));
 
-    try fmt.print("\n", .{});
+    try fmt.stdout("\n", .{});
 
     if (config.logo.enabled) {
         var logo_list: std.ArrayList([]const u8) = .empty;
@@ -111,25 +111,25 @@ pub fn print(config: *const root.Config, modules: Self) !void {
         const max_lines = @max(logo.len, info_lines.items.len);
         for (0..max_lines) |i| {
             if (i < logo.len) {
-                try fmt.print("{s}{s}{s}", .{ config.logo.color, logo[i], Colors.RESET });
+                try fmt.stdout("{s}{s}{s}", .{ config.logo.color, logo[i], Colors.RESET });
                 const width = std.unicode.utf8CountCodepoints(logo[i]) catch logo[i].len;
                 const padding = logo_width - width + gap;
-                for (0..padding) |_| try fmt.print(" ", .{});
+                for (0..padding) |_| try fmt.stdout(" ", .{});
             } else {
                 const padding = logo_width + gap;
-                for (0..padding) |_| try fmt.print(" ", .{});
+                for (0..padding) |_| try fmt.stdout(" ", .{});
             }
 
             if (i < info_lines.items.len) {
-                try fmt.print("{s}", .{info_lines.items[i]});
+                try fmt.stdout("{s}", .{info_lines.items[i]});
             }
-            try fmt.print("\n", .{});
+            try fmt.stdout("\n", .{});
         }
     } else {
         for (info_lines.items) |line| {
-            try fmt.print("{s}\n", .{line});
+            try fmt.stdout("{s}\n", .{line});
         }
     }
 
-    try fmt.print("\n", .{});
+    try fmt.stdout("\n", .{});
 }

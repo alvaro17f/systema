@@ -19,7 +19,7 @@ pub fn getHelp(self: *Cli) !void {
         \\
     , .{self.config.name});
 
-    try fmt.print("{s}\n", .{help});
+    try fmt.stdout("{s}\n", .{help});
 
     std.process.exit(0);
 }
