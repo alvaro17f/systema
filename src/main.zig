@@ -32,8 +32,6 @@ pub const Config = struct {
 };
 
 pub fn main() !void {
-    log.debug("{s}***** DEBUG BUILD *****{s}", .{ Colors.RED, Colors.RESET });
-
     defer if (Allocator.detectLeaks()) {
         std.posix.exit(1);
     };
@@ -42,6 +40,8 @@ pub fn main() !void {
         .name = @tagName(zon.name),
         .version = zon.version,
     };
+
+    log.debug("{s}***** DEBUG BUILD: {s}{s}{s}: {s}{s}{s} *****{s}", .{ Colors.RED, Colors.YELLOW, config.name, Colors.RESET, Colors.GREEN, config.version, Colors.RED, Colors.RESET });
 
     var arena: Allocator.Arena = undefined;
     arena.init();
@@ -54,6 +54,4 @@ pub fn main() !void {
     try cli.init(arena.allocator(), &config);
 
     try Modules.print(&config, modules);
-
-    log.debug("{s}***** {s}{s}{s}: {s}{s}{s} *****{s}", .{ Colors.RED, Colors.YELLOW, config.name, Colors.RESET, Colors.GREEN, config.version, Colors.RED, Colors.RESET });
 }
