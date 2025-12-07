@@ -1,8 +1,10 @@
 name: Update Nix flake
+
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * 0" # weekly
+
 jobs:
   update-flake:
     runs-on: ubuntu-latest

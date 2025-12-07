@@ -1,28 +1,25 @@
-name: ci
-
-permissions:
-  contents: write
+name: changelog
 
 on:
-  push:
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+  workflow_call:
+    outputs:
+      changelog:
+        description: Changelog
+        value: ${{ jobs.changelog.outputs.changelog }}
+
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [x86_64-linux]
+  changelog:
     runs-on: ubuntu-latest
+
+    outputs:
+      changelog: ${{ steps.build_changelog.outputs.changelog }}
+
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Setup Zig
-        uses: mlugg/setup-zig@v2
-
-      - name: Build
-        run: zig build -Doptimize=ReleaseSafe -Dtarget=${{ matrix.target }}
+        with:
+          fetch-depth: 2
+          submodules: true
 
       - name: Build Changelog
         id: build_changelog
@@ -87,10 +84,3 @@ jobs:
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: zig-out/bin/*
-          body: ${{ steps.build_changelog.outputs.changelog }}
