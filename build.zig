@@ -54,7 +54,7 @@ pub fn build(b: *std.Build) void {
     });
 
     if (target.result.os.tag == .linux) {
-        exe.linkLibC();
+        exe.root_module.link_libc = true;
     }
 
     b.installArtifact(exe);
@@ -70,19 +70,19 @@ pub fn build(b: *std.Build) void {
         run_cmd.addArgs(args);
     }
 
-    // const mod_tests = b.addTest(.{
-    //     .root_module = mod,
-    // });
+    const test_step = b.step("test", "Run tests");
 
-    // const run_mod_tests = b.addRunArtifact(mod_tests);
-    //
-    // const exe_tests = b.addTest(.{
-    //     .root_module = exe.root_module,
-    // });
+    const zig_exe = b.graph.zig_exe;
 
-    // const run_exe_tests = b.addRunArtifact(exe_tests);
+    const test_utils = b.addSystemCommand(&.{ zig_exe, "test", "-Mroot=src/utils/mod.zig" });
+    test_step.dependOn(&test_utils.step);
 
-    // const test_step = b.step("test", "Run tests");
-    // test_step.dependOn(&run_mod_tests.step);
-    // test_step.dependOn(&run_exe_tests.step);
+    const test_cli = b.addSystemCommand(&.{ zig_exe, "test", "--dep", "utils", "-Mroot=src/cli/mod.zig", "-Mutils=src/utils/mod.zig" });
+    test_step.dependOn(&test_cli.step);
+
+    const test_modules = b.addSystemCommand(&.{ zig_exe, "test", "--dep", "utils", "-Mroot=src/modules/mod.zig", "-Mutils=src/utils/mod.zig", "-lc" });
+    test_step.dependOn(&test_modules.step);
+
+    const test_main = b.addSystemCommand(&.{ zig_exe, "test", "--dep", "cli", "--dep", "modules", "--dep", "utils", "--dep", "zon", "-Mroot=src/main.zig", "-Mcli=src/cli/mod.zig", "-Mmodules=src/modules/mod.zig", "-Mutils=src/utils/mod.zig", "-Mzon=build.zig.zon", "-lc" });
+    test_step.dependOn(&test_main.step);
 }

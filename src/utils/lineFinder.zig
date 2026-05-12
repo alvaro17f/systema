@@ -1,11 +1,13 @@
 const std = @import("std");
 
-pub fn lineFinder(allocator: std.mem.Allocator, file_path: []const u8, starts_with: []const u8, from_character: u8) ![]const u8 {
-    const file = try std.fs.cwd().openFile(file_path, .{ .mode = .read_only });
-    defer file.close();
+const Dir = std.Io.Dir;
+
+pub fn lineFinder(allocator: std.mem.Allocator, io: std.Io, file_path: []const u8, starts_with: []const u8, from_character: u8) ![]const u8 {
+    const file = try Dir.openFileAbsolute(io, file_path, .{});
+    defer file.close(io);
 
     var file_buffer: [4096]u8 = undefined;
-    var reader = file.reader(&file_buffer);
+    var reader = file.reader(io, &file_buffer);
     var line_number: usize = 0;
 
     while (try reader.interface.takeDelimiter('\n')) |line| {

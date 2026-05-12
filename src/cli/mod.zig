@@ -1,25 +1,27 @@
 const std = @import("std");
 const Config = @import("root").Config;
-const fmt = @import("utils").fmt;
-const Colors = @import("utils").colors;
+const utils = @import("utils");
+const fmt = utils.fmt;
+const Colors = utils.colors;
+const help_mod = @import("help.zig");
+const version_mod = @import("version.zig");
 
 const Self = @This();
 
 allocator: std.mem.Allocator,
+io: std.Io,
 config: Config,
 
-const help = @import("help.zig").getHelp;
-const version = @import("version.zig").getVersion;
-
-pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
+pub fn init(self: *Self, allocator: std.mem.Allocator, io: std.Io, config: *Config, args: std.process.Args) !void {
     self.* = .{
         .allocator = allocator,
+        .io = io,
         .config = config.*,
     };
 
-    var args = std.process.args();
-    _ = args.next(); // skip binary
-    while (args.next()) |arg| {
+    var args_iter = std.process.Args.iterate(args);
+    _ = args_iter.next(); // skip binary
+    while (args_iter.next()) |arg| {
         var split = std.mem.splitScalar(u8, arg[2..], '=');
         const opt = split.first();
         const val = split.rest();
@@ -29,10 +31,10 @@ pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
                 const str = arg[1..];
                 for (str) |b| {
                     switch (b) {
-                        'h' => try help(self),
-                        'v' => try version(self),
+                        'h' => try help_mod.getHelp(self),
+                        'v' => try version_mod.getVersion(self),
                         else => {
-                            try fmt.stderr("Invalid opt: '{c}'\n", .{b});
+                            try fmt.stderr(self.io, "Invalid opt: '{c}'\n", .{b});
                             std.process.exit(1);
                         },
                     }
@@ -40,9 +42,9 @@ pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
             },
             .long => {
                 if (eql(opt, "help")) {
-                    try help(self);
+                    try help_mod.getHelp(self);
                 } else if (eql(opt, "version")) {
-                    try version(self);
+                    try version_mod.getVersion(self);
                 } else if (eql(opt, "logo-path")) {
                     config.logo.path = val;
                 } else if (eql(opt, "logo-color")) {
@@ -54,7 +56,7 @@ pub fn init(self: *Self, allocator: std.mem.Allocator, config: *Config) !void {
                 } else if (eql(opt, "labels-color")) {
                     config.labels.color = Colors.hex(self.allocator, val) catch config.labels.color;
                 } else {
-                    try fmt.stderr("Invalid opt: '{s}'\n", .{opt});
+                    try fmt.stderr(self.io, "Invalid opt: '{s}'\n", .{opt});
                     std.process.exit(1);
                 }
             },
@@ -82,4 +84,20 @@ fn parseArgBool(arg: []const u8) ?bool {
 
 fn eql(a: []const u8, b: []const u8) bool {
     return std.mem.eql(u8, a, b);
+}
+
+// -- Tests --
+
+test "help message contains app name" {
+    const msg = try std.fmt.allocPrint(std.testing.allocator, "Usage:\n  {s} [options]", .{"systema"});
+    defer std.testing.allocator.free(msg);
+    try std.testing.expect(std.mem.containsAtLeast(u8, msg, 1, "systema"));
+}
+
+test "version message contains version string" {
+    const name = try std.ascii.allocUpperString(std.testing.allocator, "systema");
+    defer std.testing.allocator.free(name);
+    const msg = try std.fmt.allocPrint(std.testing.allocator, "{s} version: {s}", .{ name, "0.1.2" });
+    defer std.testing.allocator.free(msg);
+    try std.testing.expect(std.mem.containsAtLeast(u8, msg, 1, "0.1.2"));
 }

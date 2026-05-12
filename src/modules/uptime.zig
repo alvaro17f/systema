@@ -1,41 +1,42 @@
 const std = @import("std");
-const ArrayList = std.ArrayList;
 
-const Uptime = struct {
+pub const Uptime = struct {
     days: i64,
     hours: i64,
     minutes: i64,
     seconds: i64,
 };
 
-pub fn getSystemUptimeInSeconds() !i64 {
-    const file = std.fs.openFileAbsolute("/proc/uptime", .{ .mode = .read_only }) catch return 0;
-    defer file.close();
-
-    const content = file.readToEndAlloc(std.heap.page_allocator, 4096) catch return 0;
-    defer std.heap.page_allocator.free(content);
-
-    var it = std.mem.tokenizeScalar(u8, content, ' ');
+pub fn parseUptimeSeconds(data: []const u8) i64 {
+    var it = std.mem.tokenizeScalar(u8, data, ' ');
     const uptime_seconds_str = it.next() orelse return 0;
     const uptime_float = std.fmt.parseFloat(f64, uptime_seconds_str) catch return 0;
-
     return @as(i64, @intFromFloat(uptime_float));
 }
 
-pub fn getUptime(uptime: *Uptime) !void {
-    const uptime_in_seconds = try getSystemUptimeInSeconds();
+fn getSystemUptimeInSeconds(io: std.Io) !i64 {
+    const file = std.Io.Dir.openFileAbsolute(io, "/proc/uptime", .{}) catch return 0;
+    defer file.close(io);
 
-    uptime.* = .{
-        .days = @divTrunc(uptime_in_seconds, 86400),
-        .hours = @divTrunc(uptime_in_seconds, 3600) - (uptime.days * 24),
-        .minutes = @divTrunc(uptime_in_seconds, 60) - (uptime.hours * 60),
-        .seconds = @mod(uptime_in_seconds, 60),
-    };
+    var file_buffer: [4096]u8 = undefined;
+    var reader = file.reader(io, &file_buffer);
+    const content = reader.interface.allocRemaining(std.heap.page_allocator, .limited(4096)) catch return 0;
+    defer std.heap.page_allocator.free(content);
+
+    return parseUptimeSeconds(content);
 }
 
-pub fn getUptimeInfo(allocator: std.mem.Allocator) ![]const u8 {
-    var uptime = Uptime{ .days = 0, .hours = 0, .minutes = 0, .seconds = 0 };
-    try getUptime(&uptime);
+pub fn calcUptime(uptime_in_seconds: i64) Uptime {
+    const days = @divTrunc(uptime_in_seconds, 86400);
+    const hours = @divTrunc(uptime_in_seconds, 3600) - (days * 24);
+    const minutes = @divTrunc(uptime_in_seconds, 60) - (days * 24 * 60) - (hours * 60);
+    const seconds = @mod(uptime_in_seconds, 60);
+    return .{ .days = days, .hours = hours, .minutes = minutes, .seconds = seconds };
+}
+
+pub fn getUptimeInfo(allocator: std.mem.Allocator, io: std.Io) ![]const u8 {
+    const uptime_in_seconds = try getSystemUptimeInSeconds(io);
+    const uptime = calcUptime(uptime_in_seconds);
 
     var parts: std.ArrayList([]const u8) = .empty;
     defer parts.deinit(allocator);

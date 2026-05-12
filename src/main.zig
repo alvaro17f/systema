@@ -1,5 +1,4 @@
 const std = @import("std");
-const Allocator = @import("utils").allocator;
 const fmt = @import("utils").fmt;
 const Colors = @import("utils").colors;
 const Modules = @import("modules");
@@ -31,10 +30,9 @@ pub const Config = struct {
     labels: Labels = Labels{},
 };
 
-pub fn main() !void {
-    defer if (Allocator.detectLeaks()) {
-        std.posix.exit(1);
-    };
+pub fn main(init: std.process.Init) !void {
+    const gpa = init.gpa;
+    const io = init.io;
 
     var config = Config{
         .name = @tagName(zon.name),
@@ -43,15 +41,18 @@ pub fn main() !void {
 
     log.debug("{s}***** DEBUG BUILD: {s}{s}{s}: {s}{s}{s} *****{s}", .{ Colors.RED, Colors.YELLOW, config.name, Colors.RESET, Colors.GREEN, config.version, Colors.RED, Colors.RESET });
 
-    var arena: Allocator.Arena = undefined;
-    arena.init();
+    var arena = std.heap.ArenaAllocator.init(gpa);
     defer arena.deinit();
 
     var modules: Modules = undefined;
-    try modules.init(arena.allocator());
+    try modules.init(arena.allocator(), io, init.environ_map.*);
 
     var cli: Cli = undefined;
-    try cli.init(arena.allocator(), &config);
+    try cli.init(arena.allocator(), io, &config, init.minimal.args);
 
-    try Modules.print(&config, modules);
+    try Modules.print(io, init.environ_map.*, &config, modules);
+}
+
+test "sanity check: test runner works" {
+    try std.testing.expect(true);
 }

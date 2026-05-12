@@ -1,5 +1,5 @@
 const std = @import("std");
 
-pub fn getUsername() []const u8 {
-    return std.posix.getenv("USER") orelse return "NO_USER_NAME_FOUND";
+pub fn getUsername(environ_map: std.process.Environ.Map) []const u8 {
+    return environ_map.get("USER") orelse return "NO_USER_NAME_FOUND";
 }
