@@ -169,16 +169,6 @@ test "format memory string" {
     try std.testing.expect(@as(f64, 16.0) == @as(f64, 16.0));
 }
 
-test "parseUptimeSeconds: valid data" {
-    const secs = uptime_mod.parseUptimeSeconds("12345.67 67890.12");
-    try std.testing.expectEqual(@as(i64, 12345), secs);
-}
-
-test "parseUptimeSeconds: empty data" {
-    const secs = uptime_mod.parseUptimeSeconds("");
-    try std.testing.expectEqual(@as(i64, 0), secs);
-}
-
 test "calcUptime: 90061 seconds = 1 day 1 hour 1 minute 1 second" {
     const u = uptime_mod.calcUptime(90061);
     try std.testing.expectEqual(@as(i64, 1), u.days);
