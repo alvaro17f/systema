@@ -8,12 +8,14 @@ get_kernel_info :: proc() -> string {
 	uname: posix.utsname
 	posix.uname(&uname)
 
+	ver, _ := info.os_version(context.temp_allocator)
+
 	return fmt.tprintf(
 		"%s %d.%d.%d (%s)",
-		info.os_version.platform,
-		info.os_version.major,
-		info.os_version.minor,
-		info.os_version.patch,
+		ver.platform,
+		ver.kernel.major,
+		ver.kernel.minor,
+		ver.kernel.patch,
 		uname.machine,
 	)
 }

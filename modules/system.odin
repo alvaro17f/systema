@@ -1,10 +1,11 @@
 package modules
 
+import "core:fmt"
 import "core:strings"
 import "core:sys/info"
 
 get_system_info :: proc() -> string {
-	i := strings.index(info.os_version.as_string, ",")
-
-	return info.os_version.as_string[:i]
+	ver, _ := info.os_version(context.temp_allocator)
+	i := strings.index(ver.full, ",")
+	return ver.full[:i]
 }

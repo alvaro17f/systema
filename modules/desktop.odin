@@ -1,7 +1,7 @@
 package modules
 
 import "core:fmt"
-import os "core:os/os2"
+import "core:os"
 
 Desktop :: struct {
 	desktop, session: string,

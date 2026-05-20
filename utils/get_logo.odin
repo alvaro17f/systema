@@ -1,7 +1,7 @@
 package utils
 
 import "core:fmt"
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 
 get_logo :: proc(path: string) -> [dynamic]string {
@@ -11,14 +11,13 @@ get_logo :: proc(path: string) -> [dynamic]string {
 		logo = #load("../assets/logo.asc")
 	} else {
 		file, file_err := os.open(path)
-		defer os.close(file)
-		if file_err != os.ERROR_NONE {
+		if file_err != nil {
 			fmt.eprintfln("Failed to open logo file at %s: %s", path, file_err)
 		}
+		defer {_ = os.close(file)}
 
-		read_err: os.Error
-		logo, read_err = os.read_entire_file_from_file(file, context.temp_allocator)
-		if read_err != os.ERROR_NONE {
+		logo, read_err := os.read_entire_file_from_file(file, context.temp_allocator)
+		if read_err != nil {
 			fmt.eprintfln("Failed to read logo: %s", read_err)
 		}
 	}

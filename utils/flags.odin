@@ -3,7 +3,7 @@ package utils
 import "../colors"
 import "../models"
 import "core:fmt"
-import os "core:os/os2"
+import "core:os"
 import "core:strconv"
 import "core:strings"
 

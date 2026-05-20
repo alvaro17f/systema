@@ -1,7 +1,7 @@
 package modules
 
 import "core:fmt"
-import os "core:os/os2"
+import "core:os"
 import "core:strconv"
 import "core:strings"
 import "../colors"
@@ -14,13 +14,13 @@ Memory :: struct {
 @(private)
 get_meminfo :: proc(memory: ^Memory) -> (err: os.Error) {
 	file, file_err := os.open("/proc/meminfo")
-	defer os.close(file)
-	if file_err != os.ERROR_NONE {
+	if file_err != nil {
 		return file_err
 	}
+	defer {_ = os.close(file)}
 
 	data, read_err := os.read_entire_file_from_file(file, context.temp_allocator)
-	if read_err != os.ERROR_NONE {
+	if read_err != nil {
 		return read_err
 	}
 

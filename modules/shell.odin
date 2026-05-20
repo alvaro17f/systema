@@ -1,6 +1,6 @@
 package modules
 
-import os "core:os/os2"
+import "core:os"
 import "core:strings"
 
 get_shell_info :: proc() -> string {
