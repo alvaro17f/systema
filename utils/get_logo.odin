@@ -16,7 +16,8 @@ get_logo :: proc(path: string) -> [dynamic]string {
 		}
 		defer {_ = os.close(file)}
 
-		logo, read_err := os.read_entire_file_from_file(file, context.temp_allocator)
+		read_err: os.Error
+		logo, read_err = os.read_entire_file_from_file(file, context.temp_allocator)
 		if read_err != nil {
 			fmt.eprintfln("Failed to read logo: %s", read_err)
 		}
