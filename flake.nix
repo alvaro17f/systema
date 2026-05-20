@@ -1,80 +1,45 @@
 {
-  description = "systema flake";
+  description = "systema";
 
   inputs = {
-    zig2nix.url = "github:Cloudef/zig2nix";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
-    { zig2nix, ... }:
-    let
-      flake-utils = zig2nix.inputs.flake-utils;
-
-      zon = builtins.readFile ./build.zig.zon;
-      zonFlat = builtins.replaceStrings [ "\n" "\r" ] [ " " " " ] zon;
-      zonVer = builtins.head (
-        builtins.match ".*\\.minimum_zig_version[[:space:]]*=[[:space:]]*\"([^\"]+)\".*" zonFlat
-      );
-      version = "zig-" + (builtins.replaceStrings [ "." ] [ "_" ] zonVer);
-    in
-    (flake-utils.lib.eachDefaultSystem (
+    {
+      nixpkgs,
+      flake-utils,
+      ...
+    }:
+    flake-utils.lib.eachDefaultSystem (
       system:
       let
-        env = zig2nix.outputs.zig-env.${system} { zig = zig2nix.outputs.packages.${system}.${version}; };
+        name = "systema";
+
+        pkgs = import nixpkgs { inherit system; };
+
+        version = pkgs.lib.fileContents ./VERSION;
+
+        buildInputs = with pkgs; [ odin ];
       in
-      with builtins;
-      with env.pkgs.lib;
-      rec {
-        packages.foreign = env.package (
-          {
-            src = cleanSource ./.;
-
-            nativeBuildInputs = with env.pkgs; [ ];
-
-            buildInputs = with env.pkgs; [ ];
-
-            zigPreferMusl = true;
-
-            zigDisableWrap = true;
-          }
-          // optionalAttrs (!pathExists ./build.zig.zon) {
-            pname = "systema";
-            version = "0.0.0";
-          }
-        );
-
-        packages.default = packages.foreign.overrideAttrs (attrs: {
-          zigPreferMusl = false;
-
-          zigWrapperBins = with env.pkgs; [ ];
-
-          zigWrapperLibs = with env.pkgs; [ ];
-        });
-
-        apps.bundle = {
-          type = "app";
-          program = "${packages.foreign}/bin/default";
+      {
+        packages.default = pkgs.stdenv.mkDerivation {
+          name = name;
+          src = ./.;
+          buildInputs = buildInputs;
+          buildPhase = ''
+            odin build . -define="VERSION=${version}" -o:speed -out:${name}
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp ${name} $out/bin
+          '';
         };
 
-        # nix run .
-        apps.default = env.app [ ] "zig build run --release=fast -- \"$@\"";
-
-        # nix run .#build
-        apps.build = env.app [ ] "zig build --release=fast \"$@\"";
-
-        # nix run .#test
-        apps.test = env.app [ ] "zig build test --release=fast -- \"$@\"";
-
-        # nix run .#docs
-        apps.docs = env.app [ ] "zig build docs --release=fast -- \"$@\"";
-
-        # nix run .#zig2nix
-        apps.zig2nix = env.app [ ] "zig2nix \"$@\"";
-
-        # nix develop
-        devShells.default = env.mkShell {
-          nativeBuildInputs = with env.pkgs; [ ];
+        devShells.default = pkgs.mkShell {
+          buildInputs = buildInputs;
         };
       }
-    ));
+    );
 }

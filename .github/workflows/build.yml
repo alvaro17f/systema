@@ -1,39 +1,70 @@
 name: build
 
-permissions:
-  contents: write
-
 on:
   workflow_call:
     inputs:
-      CHANGELOG:
+      NAME:
         required: true
         type: string
       VERSION:
+        required: true
+        type: string
+      CHANGELOG:
         required: true
         type: string
 
 jobs:
   build:
     strategy:
-      fail-fast: false
       matrix:
-        target: [x86_64-linux]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+         include:
+          - os: ubuntu-latest
+            artifact_name: ${{ inputs.NAME }}
+            asset_name: ${{ inputs.NAME }}-linux-amd64.tar.gz
+            asset_directory: /tmp/
+          # - os: macos-latest
+          #   artifact_name: ${{ inputs.NAME }}
+          #   asset_name: ${{ inputs.NAME }}-macos-arm64.tar.gz
+          #   asset_directory: /tmp/
 
-      - name: Setup Zig
-        uses: mlugg/setup-zig@v2
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          submodules: true
+
+      - name: Setup odin
+        uses: laytan/setup-odin@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release: false
 
       - name: Build
-        run: zig build -Doptimize=ReleaseSafe -Dtarget=${{ matrix.target }}
+        shell: bash
+        run: |
+          # odin build . -define="VERSION=${{ inputs.VERSION }}" -o:speed -out:${{ matrix.artifact_name }} -vet -strict-style -vet-tabs -disallow-do -warnings-as-errors
+          odin build . -define="VERSION=${{ inputs.VERSION }}" -o:speed -out:${{ matrix.artifact_name }}
+          ./${{ matrix.artifact_name }} -v
 
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      - name: Compress binary
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z a ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+            mkdir -p D:\\tmp
+            cp ${{ matrix.asset_name }} D:\\tmp\\${{ matrix.asset_name }}
+          else
+            tar -czf /tmp/${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+          fi
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          files: zig-out/bin/*
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ inputs.VERSION }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ matrix.asset_directory}}${{ matrix.asset_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ inputs.VERSION }}
           body: ${{ inputs.CHANGELOG }}

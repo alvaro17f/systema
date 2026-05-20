@@ -28,4 +28,4 @@ jobs:
           create-tag: true
           tag-template: "{VERSION}"
           version-command: |
-            awk -F'"' '/\.version/ {print $2}' build.zig.zon
+            cat VERSION

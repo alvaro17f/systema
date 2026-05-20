@@ -17,6 +17,8 @@ jobs:
     permissions:
       contents: write
 
+
+
   build:
     uses: ./.github/workflows/build.yml
     needs: [tag, changelog]
@@ -24,5 +26,6 @@ jobs:
     permissions:
       contents: write
     with:
-      CHANGELOG: ${{ needs.changelog.outputs.changelog }}
+      NAME: systema
       VERSION: ${{ needs.tag.outputs.new_version }}
+      CHANGELOG: ${{ needs.changelog.outputs.changelog }}
